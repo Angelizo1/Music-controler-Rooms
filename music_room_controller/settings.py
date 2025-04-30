@@ -30,6 +30,9 @@ ALLOWED_HOSTS = []
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  # Vite's default dev server
 ]
+CORS_ALLOW_CREDENTIALS = True
+SESSION_COOKIE_SAMESITE = 'None'  # or 'None' if needed for cross-site
+SESSION_COOKIE_SECURE = True    # Set to True in production with HTTPS
 
 # Application definition
 
@@ -131,3 +134,21 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'level': 'INFO',  # Set your desired logging level (DEBUG, INFO, etc.)
+            'class': 'logging.StreamHandler',  # This handler outputs logs to the console
+        },
+    },
+    'loggers': {
+         'api.views': {  # Make sure this matches your file's module path
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        }
+        # You can also set up custom loggers here
+    },
+}

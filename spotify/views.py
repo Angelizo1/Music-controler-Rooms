@@ -2,13 +2,18 @@ from lib2to3.pgen2 import token
 from os import access
 from telnetlib import STATUS
 from django.shortcuts import render, redirect
-from .credentials import REDIRECT_URI, CLIENT_ID, CLIENT_SECRET
+from .credentials import REDIRECT_URI, SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET
 from rest_framework.views import APIView
 from requests import Request, post
 from rest_framework import status
 from urllib.parse import urlencode
 from django.http import JsonResponse
-from .util import update_or_create_user_tokens, is_spotify_authenticated, execute_spotify_api_request, play_song, pause_song
+from .util import (update_or_create_user_tokens,
+                   is_spotify_authenticated,
+                   execute_spotify_api_request,
+                   play_song,
+                   pause_song,
+                   skip_song)
 import requests
 from rest_framework.response import Response
 from api.models import Room
@@ -20,7 +25,7 @@ class AuthURL(APIView):
         room_code = request.GET.get('roomCode')
         url = 'https://accounts.spotify.com/authorize?' + urlencode({
             'response_type': 'code',
-            'client_id': CLIENT_ID,
+            'client_id': SPOTIFY_CLIENT_ID,
             'scope': scopes,
             'redirect_uri': REDIRECT_URI,
             'state': room_code
@@ -36,8 +41,8 @@ class SpotifyCallback(APIView):
             'grant_type': 'authorization_code',
             'code': code,
             'redirect_uri': REDIRECT_URI,
-            'client_id': CLIENT_ID,
-            'client_secret': CLIENT_SECRET,
+            'client_id': SPOTIFY_CLIENT_ID,
+            'client_secret': SPOTIFY_CLIENT_SECRET,
         })
 
         response_data = response.json()
@@ -122,11 +127,13 @@ class PauseSong(APIView):
 class PlaySong(APIView):
     def put(self, response, format=None):
         room_code = self.request.session.get('room_code')
-        room = Room.objects.get(code=room_code)                #get returns just one, filter returns many
+        # get returns just one, filter returns many
+        room = Room.objects.get(code=room_code)
         if self.request.session.session_key == room.host or room.guest_can_pause:
             play_song(room.host)
             return Response({}, status=status.HTTP_204_NO_CONTENT)
         return Response({}, status=status.HTTP_403_FORBIDDEN)
+
 
 class SkipSong(APIView):
     def post(self, request, format=None):

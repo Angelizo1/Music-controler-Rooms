@@ -78,7 +78,7 @@ export const Room = () => {
         return response.json(); //very important to get his with the return
       })
       .then((data) => {
-        // console.log(data);
+        console.log(data);
         setSong(data);
       })
       .catch((err) => console.log(err));
@@ -142,6 +142,7 @@ export const Room = () => {
   };
 
   useEffect(() => {
+    console.log("whatsss")
     const intervalId = setInterval(() => {
       getCurrentSong();
     }, 20000);

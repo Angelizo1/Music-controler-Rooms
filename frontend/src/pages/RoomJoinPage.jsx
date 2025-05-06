@@ -36,7 +36,7 @@ const RoomJoinPage = () => {
   };
 
   return (
-    <Grid container spacing={1}>
+    <Grid container spacing={1} direction="column">
       <Grid item columns={12} align="center">
         <Typography variant="h4" component="h4">
           Join a Room

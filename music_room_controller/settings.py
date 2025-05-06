@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     'frontend.apps.FrontendConfig',
     'corsheaders',
     'api',
-
+    'spotify.apps.SpotifyConfig'
 ]
 
 MIDDLEWARE = [

@@ -4,13 +4,9 @@ import {
   Button,
   Grid,
   Typography,
-  TextField,
-  FormHelperText,
-  FormControl,
-  Radio,
-  RadioGroup,
-  FormControlLabel,
 } from "@mui/material";
+
+import { MusicPlayer } from "./MusicPlayer";
 
 import CreateRoomPage from "./CreateRoomPage";
 
@@ -19,6 +15,8 @@ export const Room = () => {
   const [guestCanPause, setGuestCanPause] = useState(false);
   const [isHost, setIsHost] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [isSpotifyAuthenticated, setIsSpotifyAuthenticated] = useState(false);
+  const [song, setSong] = useState({});
 
   const { roomCode } = useParams();
   const navigate = useNavigate();
@@ -41,6 +39,13 @@ export const Room = () => {
     }
   };
 
+  useEffect(() => {
+    if (isHost) {
+      console.log("value of host", isHost);
+      authenticateSpotify();
+    }
+  }, [isHost]);
+
   const handleLeaveRoom = async () => {
     const request = {
       method: "POST",
@@ -60,6 +65,51 @@ export const Room = () => {
 
   const handleUpdateSettings = (value) => {
     setShowSettings(value);
+  };
+
+  const getCurrentSong = () => {
+    fetch("http://127.0.0.1:8000/spotify/current-song", {
+      credentials: "include",
+    })
+      .then((response) => {
+        if (!response.ok) {
+          return {};
+        }
+        return response.json(); //very important to get his with the return
+      })
+      .then((data) => {
+        // console.log(data);
+        setSong(data);
+      })
+      .catch((err) => console.log(err));
+  };
+
+  const authenticateSpotify = () => {
+    console.log("Auth happening");
+    fetch("http://127.0.0.1:8000/spotify/is_authenticated", {
+      credentials: "include",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("is authenticated", data);
+        setIsSpotifyAuthenticated(data.status);
+        if (!data.status) {
+          fetch(
+            "http://127.0.0.1:8000/spotify/get-auth-url?roomCode=" + roomCode,
+            {
+              credentials: "include",
+            }
+          )
+            .then((response) => response.json())
+            .then((data) => {
+              console.log("Final one", data);
+              // getCurrentSong();
+              window.location.replace(data.url);
+            });
+        }
+        getCurrentSong();
+      })
+      .catch((err) => console.error("Error getting auth URL:", err));
   };
 
   const displaySettings = () => {
@@ -86,6 +136,20 @@ export const Room = () => {
       </Grid>
     );
   };
+
+  const spotifyPolling = () => {
+    return setInterval(getCurrentSong, 120000); //returns id of interval for being stopped
+  };
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      getCurrentSong();
+    }, 20000);
+
+    return () => {
+      clearInterval(intervalId);   //clear when unmounting component
+    };
+  }, []);
 
   const displaySettingsButton = () => {
     return (
@@ -115,21 +179,7 @@ export const Room = () => {
               Code: {roomCode}
             </Typography>
           </Grid>
-          <Grid columns={12} align="center">
-            <Typography variant="h6" component="h6">
-              Votes: {votesToSkip}
-            </Typography>
-          </Grid>
-          <Grid columns={12} align="center">
-            <Typography variant="h6" component="h6">
-              Guest can Pause: {guestCanPause.toString()}
-            </Typography>
-          </Grid>
-          <Grid columns={12} align="center">
-            <Typography variant="h6" component="h6">
-              Host: {isHost.toString()}
-            </Typography>
-          </Grid>
+          <MusicPlayer { ...song }/>
           {isHost ? displaySettingsButton() : <h1>You suck</h1>}
           <Grid columns={12} align="center">
             <Button

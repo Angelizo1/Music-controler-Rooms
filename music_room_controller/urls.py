@@ -20,4 +20,5 @@ from api.views  import get_data
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),  # 👈 include the app's URLs here
+    path('spotify/', include('spotify.urls'))
 ]

@@ -65,6 +65,15 @@ export const MusicPlayer = ({
     });
   };
 
+  const handleSkipSong = () => {
+    const request = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    };
+    fetch("http://127.0.0.1:8000/spotify/skip-song", request);
+  };
+
   return (
     <Card>
       <Grid>
@@ -85,7 +94,7 @@ export const MusicPlayer = ({
               )}
             </IconButton>
             <IconButton>
-              <SkipNextIcon />
+              <SkipNextIcon onClick={handleSkipSong} />
             </IconButton>
           </Box>
         </Grid>

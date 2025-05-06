@@ -1,9 +1,16 @@
 from .models import SpotifyToken
 from django.utils import timezone
 from datetime import timedelta
-from .credentials import CLIENT_ID, CLIENT_SECRET
+# from .credentials import CLIENT_ID, CLIENT_SECRET
 from requests import post, put, get
+from dotenv import load_dotenv
+import os
 
+load_dotenv()  # Load environment variables from the .env file
+
+SPOTIFY_CLIENT_ID = os.getenv("CLIENT_ID")
+SPOTIFY_CLIENT_SECRET = os.getenv("CLIENT_SECRET")
+REDIRECT_URI = os.getenv('REDIRECT_URI')
 
 BASE_URL = "https://api.spotify.com/v1/me/"
 
@@ -56,8 +63,8 @@ def refresh_spotify_token(session_id):
     response = post('https://accounts.spotify.com/api/token', data={
         'grant_type': 'refresh_token',
         'refresh_token': refresh_token,
-        'client_id': CLIENT_ID,
-        'client_secret': CLIENT_SECRET
+        'client_id': SPOTIFY_CLIENT_ID,
+        'client_secret': SPOTIFY_CLIENT_SECRET
     }).json()
 
     access_token = response.get('access_token')

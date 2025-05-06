@@ -2,7 +2,7 @@ from lib2to3.pgen2 import token
 from os import access
 from telnetlib import STATUS
 from django.shortcuts import render, redirect
-from .credentials import REDIRECT_URI, SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET
+# from .credentials import REDIRECT_URI, SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET
 from rest_framework.views import APIView
 from requests import Request, post
 from rest_framework import status
@@ -17,7 +17,14 @@ from .util import (update_or_create_user_tokens,
 import requests
 from rest_framework.response import Response
 from api.models import Room
+from dotenv import load_dotenv
+import os
 
+load_dotenv()  # Load environment variables from the .env file
+
+SPOTIFY_CLIENT_ID = os.getenv("CLIENT_ID")
+SPOTIFY_CLIENT_SECRET = os.getenv("CLIENT_SECRET")
+REDIRECT_URI = os.getenv('REDIRECT_URI')
 
 class AuthURL(APIView):
     def get(self, request):
